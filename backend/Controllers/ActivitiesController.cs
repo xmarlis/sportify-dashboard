@@ -187,7 +187,13 @@ public class ActivitiesController : ControllerBase
                     averageDistance = 0.0,
                     averageHeartRate = 0.0,
                     activityTypes = new Dictionary<string, int>(),
-                    monthlyStats = new List<object>()
+                    monthlyStats = new List<object>(),
+                    bestPerformances = new
+                    {
+                        longestDistance = (object?)null,
+                        longestDuration = (object?)null,
+                        highestElevation = (object?)null
+                    }
                 });
             }
 
@@ -198,11 +204,18 @@ public class ActivitiesController : ControllerBase
 
             // Average statistics
             var averageDistance = totalDistance / activities.Count;
-            var runActivities = activities.Where(a => a.Type == "Run").ToList();
-            var averagePace = runActivities.Count > 0
-                ? runActivities.Average(a => a.MovingTimeSeconds / (a.DistanceMeters / 1000.0))
-                : 0.0;
-            var activitiesWithHR = activities.Where(a => a.AverageHeartRate.HasValue).ToList();
+            var runActivities = activities
+                .Where(a => a.Type == "Run" && a.DistanceMeters > 0)
+                .ToList();
+
+            double averagePace = 0.0;
+            if (runActivities.Count > 0)
+            {
+                var paceValue = runActivities.Average(a => a.MovingTimeSeconds / (a.DistanceMeters / 1000.0));
+                averagePace = double.IsNaN(paceValue) || double.IsInfinity(paceValue) ? 0.0 : paceValue;
+            }
+
+            var activitiesWithHR = activities.Where(a => a.AverageHeartRate.HasValue && a.AverageHeartRate > 0).ToList();
             var averageHeartRate = activitiesWithHR.Count > 0
                 ? activitiesWithHR.Average(a => a.AverageHeartRate!.Value)
                 : 0.0;
