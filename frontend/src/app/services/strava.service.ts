@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 /**
@@ -38,7 +38,7 @@ export class StravaService {
   importActivities(accessToken?: string): Observable<ImportResult> {
     const token = accessToken || this.getAccessToken();
     if (!token) {
-      throw new Error('No access token available');
+      return throwError(() => new Error('No access token available'));
     }
 
     return this.http.post<ImportResult>(`${this.apiUrl}/import-activities`, {
@@ -54,7 +54,7 @@ export class StravaService {
   getAthlete(accessToken?: string): Observable<any> {
     const token = accessToken || this.getAccessToken();
     if (!token) {
-      throw new Error('No access token available');
+      return throwError(() => new Error('No access token available'));
     }
 
     return this.http.post<any>(`${this.apiUrl}/athlete`, {
@@ -66,8 +66,14 @@ export class StravaService {
    * Store token in local storage
    */
   private storeToken(token: StravaToken): void {
-    localStorage.setItem('strava_token', JSON.stringify(token));
-    this.tokenSubject.next(token);
+    // Normalize token property names before storing
+    const anyToken = token as any;
+    if (!anyToken.accessToken && anyToken.access_token) {
+      anyToken.accessToken = anyToken.access_token;
+    }
+
+    localStorage.setItem('strava_token', JSON.stringify(anyToken));
+    this.tokenSubject.next(anyToken as StravaToken);
   }
 
   /**
@@ -78,7 +84,15 @@ export class StravaService {
     if (!tokenStr) return null;
 
     try {
-      return JSON.parse(tokenStr);
+      const parsed = JSON.parse(tokenStr) as any;
+      // Normalize common variants
+      if (!parsed.accessToken && parsed.access_token) {
+        parsed.accessToken = parsed.access_token;
+        // Persist normalized shape back to localStorage so raw code sees it too
+        localStorage.setItem('strava_token', JSON.stringify(parsed));
+      }
+
+      return parsed as StravaToken;
     } catch {
       return null;
     }
@@ -88,8 +102,11 @@ export class StravaService {
    * Get access token
    */
   getAccessToken(): string | null {
-    const token = this.tokenSubject.value;
-    return token?.accessToken || null;
+    const token = this.tokenSubject.value as any;
+    if (!token) return null;
+
+    // Accept multiple possible property names returned by different serializers/APIs
+    return (token.accessToken || token.access_token || token.AccessToken) ?? null;
   }
 
   /**
