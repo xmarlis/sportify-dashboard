@@ -1,0 +1,219 @@
+<div class="stats-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Loading statistics...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z"/>
+    </svg>
+    <h3>Failed to load statistics</h3>
+    <button class="btn-retry" (click)="loadStatistics()">Try Again</button>
+  </div>
+
+  <!-- Statistics Dashboard -->
+  <div *ngIf="statistics && !loading" class="dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h2>
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M4 11H2v3h2zm5-4H7v7h2zm5-5v12h-2V2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1z"/>
+        </svg>
+        Your Statistics
+      </h2>
+      <p>Track your progress and achievements</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Total Distance</p>
+          <h3 class="stat-value">{{ statistics.totalDistance }} <span>km</span></h3>
+        </div>
+      </div>
+
+      <div class="stat-card secondary">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Total Time</p>
+          <h3 class="stat-value">{{ formatTime(statistics.totalTime) }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Activities</p>
+          <h3 class="stat-value">{{ statistics.totalActivities }}</h3>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 0 1 2v13h13a.5.5 0 0 1 0 1h-13A1 1 0 0 1 0 15V2a.5.5 0 0 1 .5-.5M3 3.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm1 1v7h6v-7H4z"/>
+            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7m.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <p class="stat-label">Elevation Gain</p>
+          <h3 class="stat-value">{{ statistics.totalElevation }} <span>m</span></h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Metrics -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
+          </svg>
+          <h4>Average Pace</h4>
+        </div>
+        <p class="metric-value" *ngIf="statistics.averagePace > 0">{{ formatPace(statistics.averagePace) }}</p>
+        <p class="metric-value" *ngIf="statistics.averagePace === 0">N/A</p>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0"/>
+            <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0z"/>
+          </svg>
+          <h4>Average Distance</h4>
+        </div>
+        <p class="metric-value">{{ statistics.averageDistance }} km</p>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+            <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053.918 3.995.78 5.323 1.508 7H.43c-2.128-5.697 4.165-8.83 7.394-5.857q.09.083.176.171a3 3 0 0 1 .176-.17c3.23-2.974 9.522.159 7.394 5.856h-1.078c.728-1.677.59-3.005.108-3.947C13.486.878 10.4.28 8.717 2.01zM2.212 10h1.315C4.593 11.183 6.05 12.458 8 13.795c1.949-1.337 3.407-2.612 4.473-3.795h1.315c-1.265 1.566-3.14 3.25-5.788 5-2.648-1.75-4.523-3.434-5.788-5"/>
+          </svg>
+          <h4>Average Heart Rate</h4>
+        </div>
+        <p class="metric-value" *ngIf="statistics.averageHeartRate > 0">{{ statistics.averageHeartRate }} bpm</p>
+        <p class="metric-value" *ngIf="statistics.averageHeartRate === 0">N/A</p>
+      </div>
+    </div>
+
+    <!-- Activity Types Breakdown -->
+    <div class="section-card" *ngIf="statistics.activityTypes && Object.keys(statistics.activityTypes).length > 0">
+      <h3 class="section-title">Activity Types</h3>
+      <div class="activity-types">
+        <div class="activity-type" *ngFor="let type of Object.keys(statistics.activityTypes)">
+          <div class="activity-type-icon">{{ getActivityTypeIcon(type) }}</div>
+          <div class="activity-type-info">
+            <p class="activity-type-name">{{ type }}</p>
+            <p class="activity-type-count">{{ statistics.activityTypes[type] }} activities</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Best Performances -->
+    <div class="section-card" *ngIf="statistics.bestPerformances">
+      <h3 class="section-title">Best Performances</h3>
+      <div class="best-performances">
+        <div class="performance-item" *ngIf="statistics.bestPerformances.longestDistance">
+          <div class="performance-icon gold">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M9.669.864 8 0 6.331.864l-1.858.282-.842 1.68-1.337 1.32L2.6 6l-.306 1.854 1.337 1.32.842 1.68 1.858.282L8 12l1.669-.864 1.858-.282.842-1.68 1.337-1.32L13.4 6l.306-1.854-1.337-1.32-.842-1.68zm1.196 1.193.684 1.365 1.086 1.072L12.387 6l.248 1.506-1.086 1.072-.684 1.365-1.51.229L8 10.874l-1.355-.702-1.51-.229-.684-1.365-1.086-1.072L3.614 6l-.25-1.506 1.087-1.072.684-1.365 1.51-.229L8 1.126l1.356.702z"/>
+              <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1z"/>
+            </svg>
+          </div>
+          <div class="performance-content">
+            <p class="performance-label">Longest Distance</p>
+            <p class="performance-value">{{ statistics.bestPerformances.longestDistance.distance }} km</p>
+            <p class="performance-date">{{ statistics.bestPerformances.longestDistance.date }}</p>
+          </div>
+        </div>
+
+        <div class="performance-item" *ngIf="statistics.bestPerformances.longestDuration">
+          <div class="performance-icon silver">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+            </svg>
+          </div>
+          <div class="performance-content">
+            <p class="performance-label">Longest Duration</p>
+            <p class="performance-value">{{ formatTime(statistics.bestPerformances.longestDuration.duration) }}</p>
+            <p class="performance-date">{{ statistics.bestPerformances.longestDuration.date }}</p>
+          </div>
+        </div>
+
+        <div class="performance-item" *ngIf="statistics.bestPerformances.highestElevation">
+          <div class="performance-icon bronze">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 16a2 2 0 0 1-2-2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 .5.5V1h1a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2 2m0-1a1 1 0 0 0 1-1H7a1 1 0 0 0 1 1M2 3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1z"/>
+              <path d="M2 5v2h2V5zm0 3v2h2V8zm0 3v2h2v-2z"/>
+            </svg>
+          </div>
+          <div class="performance-content">
+            <p class="performance-label">Highest Elevation</p>
+            <p class="performance-value">{{ statistics.bestPerformances.highestElevation.elevation }} m</p>
+            <p class="performance-date">{{ statistics.bestPerformances.highestElevation.date }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Statistics -->
+    <div class="section-card" *ngIf="statistics.monthlyStats && statistics.monthlyStats.length > 0">
+      <h3 class="section-title">Monthly Progress (Last 12 Months)</h3>
+      <div class="monthly-stats">
+        <div class="month-item" *ngFor="let month of statistics.monthlyStats">
+          <div class="month-header">
+            <p class="month-name">{{ getMonthName(month.month) }}</p>
+            <p class="month-activities">{{ month.activities }} activities</p>
+          </div>
+          <div class="month-metrics">
+            <div class="month-metric">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
+              </svg>
+              <span>{{ month.distance }} km</span>
+            </div>
+            <div class="month-metric">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
+              </svg>
+              <span>{{ formatTime(month.time) }}</span>
+            </div>
+            <div class="month-metric">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 0 1 2v13h13a.5.5 0 0 1 0 1h-13A1 1 0 0 1 0 15V2a.5.5 0 0 1 .5-.5M3 3.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm1 1v7h6v-7H4z"/>
+              </svg>
+              <span>{{ month.elevation }} m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
