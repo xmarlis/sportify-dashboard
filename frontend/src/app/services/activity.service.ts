@@ -48,4 +48,11 @@ export class ActivityService {
   deleteActivity(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  /**
+   * Get comprehensive statistics for all activities
+   */
+  getStatistics(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/statistics`);
+  }
 }

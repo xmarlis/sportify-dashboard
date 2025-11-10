@@ -123,6 +123,52 @@ public class StravaService
     }
 
     /// <summary>
+    /// Get all athlete activities from Strava with pagination
+    /// </summary>
+    public async Task<List<StravaActivity>> GetAllAthleteActivitiesAsync(string accessToken, int perPage = 200)
+    {
+        try
+        {
+            var allActivities = new List<StravaActivity>();
+            var page = 1;
+            var hasMoreActivities = true;
+
+            while (hasMoreActivities)
+            {
+                var activities = await GetAthleteActivitiesAsync(accessToken, page, perPage);
+
+                if (activities == null || activities.Count == 0)
+                {
+                    hasMoreActivities = false;
+                }
+                else
+                {
+                    allActivities.AddRange(activities);
+                    _logger.LogInformation("Fetched page {Page} with {Count} activities", page, activities.Count);
+
+                    // If we received fewer activities than requested, we've reached the end
+                    if (activities.Count < perPage)
+                    {
+                        hasMoreActivities = false;
+                    }
+                    else
+                    {
+                        page++;
+                    }
+                }
+            }
+
+            _logger.LogInformation("Total activities fetched: {Total}", allActivities.Count);
+            return allActivities;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching all Strava activities");
+            return new List<StravaActivity>();
+        }
+    }
+
+    /// <summary>
     /// Convert Strava activity to our Activity model
     /// </summary>
     public Activity ConvertStravaActivity(StravaActivity stravaActivity)

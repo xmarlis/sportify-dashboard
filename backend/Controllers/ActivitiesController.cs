@@ -164,4 +164,113 @@ public class ActivitiesController : ControllerBase
             return StatusCode(500, "An error occurred while deleting the activity");
         }
     }
+
+    /// <summary>
+    /// Get comprehensive statistics for all activities
+    /// </summary>
+    [HttpGet("statistics")]
+    public async Task<ActionResult> GetStatistics()
+    {
+        try
+        {
+            var activities = await _context.Activities.ToListAsync();
+
+            if (activities.Count == 0)
+            {
+                return Ok(new
+                {
+                    totalActivities = 0,
+                    totalDistance = 0.0,
+                    totalTime = 0,
+                    totalElevation = 0.0,
+                    averagePace = 0.0,
+                    averageDistance = 0.0,
+                    averageHeartRate = 0.0,
+                    activityTypes = new Dictionary<string, int>(),
+                    monthlyStats = new List<object>()
+                });
+            }
+
+            // Total statistics
+            var totalDistance = activities.Sum(a => a.DistanceMeters) / 1000.0; // Convert to km
+            var totalTime = activities.Sum(a => a.MovingTimeSeconds);
+            var totalElevation = activities.Sum(a => a.TotalElevationGain);
+
+            // Average statistics
+            var averageDistance = totalDistance / activities.Count;
+            var runActivities = activities.Where(a => a.Type == "Run").ToList();
+            var averagePace = runActivities.Count > 0
+                ? runActivities.Average(a => a.MovingTimeSeconds / (a.DistanceMeters / 1000.0))
+                : 0.0;
+            var activitiesWithHR = activities.Where(a => a.AverageHeartRate.HasValue).ToList();
+            var averageHeartRate = activitiesWithHR.Count > 0
+                ? activitiesWithHR.Average(a => a.AverageHeartRate!.Value)
+                : 0.0;
+
+            // Activity types breakdown
+            var activityTypes = activities
+                .GroupBy(a => a.Type)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            // Monthly statistics (last 12 months)
+            var twelveMonthsAgo = DateTime.Now.AddMonths(-12);
+            var monthlyStats = activities
+                .Where(a => a.StartDate >= twelveMonthsAgo)
+                .GroupBy(a => new { a.StartDate.Year, a.StartDate.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .Select(g => new
+                {
+                    month = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    activities = g.Count(),
+                    distance = Math.Round(g.Sum(a => a.DistanceMeters) / 1000.0, 2),
+                    time = g.Sum(a => a.MovingTimeSeconds),
+                    elevation = Math.Round(g.Sum(a => a.TotalElevationGain), 2)
+                })
+                .ToList();
+
+            // Best performances
+            var longestRun = activities.OrderByDescending(a => a.DistanceMeters).FirstOrDefault();
+            var longestTime = activities.OrderByDescending(a => a.MovingTimeSeconds).FirstOrDefault();
+            var highestElevation = activities.OrderByDescending(a => a.TotalElevationGain).FirstOrDefault();
+
+            var statistics = new
+            {
+                totalActivities = activities.Count,
+                totalDistance = Math.Round(totalDistance, 2),
+                totalTime = totalTime,
+                totalElevation = Math.Round(totalElevation, 2),
+                averagePace = Math.Round(averagePace, 2),
+                averageDistance = Math.Round(averageDistance, 2),
+                averageHeartRate = Math.Round(averageHeartRate, 1),
+                activityTypes = activityTypes,
+                monthlyStats = monthlyStats,
+                bestPerformances = new
+                {
+                    longestDistance = longestRun != null ? new
+                    {
+                        distance = Math.Round(longestRun.DistanceMeters / 1000.0, 2),
+                        date = longestRun.StartDate.ToString("yyyy-MM-dd")
+                    } : null,
+                    longestDuration = longestTime != null ? new
+                    {
+                        duration = longestTime.MovingTimeSeconds,
+                        date = longestTime.StartDate.ToString("yyyy-MM-dd")
+                    } : null,
+                    highestElevation = highestElevation != null ? new
+                    {
+                        elevation = Math.Round(highestElevation.TotalElevationGain, 2),
+                        date = highestElevation.StartDate.ToString("yyyy-MM-dd")
+                    } : null
+                }
+            };
+
+            return Ok(statistics);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error calculating statistics");
+            return StatusCode(500, "An error occurred while calculating statistics");
+        }
+    }
 }
