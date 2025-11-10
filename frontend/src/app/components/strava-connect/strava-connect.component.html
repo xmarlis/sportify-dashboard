@@ -1,0 +1,67 @@
+<div class="card mb-4">
+  <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="mb-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-strava me-2" viewBox="0 0 16 16">
+          <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.68 9.125H6.257L10.053 16l3.794-6.875z"/>
+        </svg>
+        Strava Integration
+      </h5>
+      <small *ngIf="athleteName">Connected as: <strong>{{ athleteName }}</strong></small>
+    </div>
+    <div>
+      <button
+        *ngIf="!isConnected"
+        class="btn btn-dark btn-sm"
+        (click)="connectToStrava()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-link-45deg me-1" viewBox="0 0 16 16">
+          <path d="M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1 1 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4 4 0 0 1-.128-1.287z"/>
+          <path d="M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243z"/>
+        </svg>
+        Connect to Strava
+      </button>
+      <button
+        *ngIf="isConnected"
+        class="btn btn-outline-dark btn-sm"
+        (click)="disconnect()">
+        Disconnect
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body" *ngIf="isConnected">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <p class="mb-2">Import your activities from Strava to keep everything in sync.</p>
+        <small class="text-muted">This will import your recent activities. Duplicates will be skipped.</small>
+      </div>
+      <button
+        class="btn btn-warning"
+        [disabled]="isImporting"
+        (click)="importActivities()">
+        <span *ngIf="!isImporting">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download me-1" viewBox="0 0 16 16">
+            <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+            <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/>
+          </svg>
+          Import Activities
+        </span>
+        <span *ngIf="isImporting">
+          <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          Importing...
+        </span>
+      </button>
+    </div>
+
+    <div *ngIf="importMessage" class="alert mt-3 mb-0" [ngClass]="importMessage.includes('Failed') ? 'alert-danger' : 'alert-success'">
+      {{ importMessage }}
+    </div>
+  </div>
+
+  <div class="card-body text-center py-4" *ngIf="!isConnected">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-strava text-warning mb-3" viewBox="0 0 16 16">
+      <path d="M6.731 0 2 9.125h2.788L6.73 5.497l1.93 3.628h2.766zm4.694 9.125-1.372 2.756L8.68 9.125H6.257L10.053 16l3.794-6.875z"/>
+    </svg>
+    <p class="text-muted">Connect your Strava account to automatically import your running and cycling activities.</p>
+  </div>
+</div>

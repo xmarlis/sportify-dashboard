@@ -5,10 +5,11 @@ import { ActivityService } from './services/activity.service';
 import { Activity } from './models/activity.model';
 import { ActivityTableComponent } from './components/activity-table/activity-table.component';
 import { ActivityFormComponent } from './components/activity-form/activity-form.component';
+import { StravaConnectComponent } from './components/strava-connect/strava-connect.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, ActivityTableComponent, ActivityFormComponent],
+  imports: [CommonModule, RouterOutlet, ActivityTableComponent, ActivityFormComponent, StravaConnectComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -74,5 +75,12 @@ export class App implements OnInit {
         alert('Failed to delete activity. Please try again.');
       }
     });
+  }
+
+  /**
+   * Handle activities imported from Strava
+   */
+  onActivitiesImported(): void {
+    this.loadActivities(); // Reload activities after import
   }
 }

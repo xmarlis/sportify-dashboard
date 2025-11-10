@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RunningDashboard.Data;
+using RunningDashboard.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,9 @@ builder.Services.AddControllers();
 // Configure SQLite database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configure Strava service with HttpClient
+builder.Services.AddHttpClient<StravaService>();
 
 // Configure CORS to allow Angular frontend
 builder.Services.AddCors(options =>

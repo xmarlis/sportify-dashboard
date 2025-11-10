@@ -19,6 +19,7 @@ A full-stack web application for tracking and visualizing running and cycling ac
 
 ## Features
 
+- ✅ **Strava Integration** - Connect your Strava account and automatically import activities
 - ✅ View all running/cycling activities in a responsive table
 - ✅ Create new activities with detailed metrics:
   - Activity type (Run, Ride, Walk, Hike)
@@ -30,7 +31,8 @@ A full-stack web application for tracking and visualizing running and cycling ac
 - ✅ Automatic pace calculation (min/km)
 - ✅ Delete activities
 - ✅ RESTful API with full CRUD operations
-- 🔄 Future: Strava API integration
+- ✅ OAuth 2.0 authentication with Strava
+- ✅ Duplicate detection when importing from Strava
 
 ## Project Structure
 
@@ -123,6 +125,49 @@ running-dashboard/
    http://localhost:4200
    ```
 
+## Strava Integration Setup
+
+To enable Strava integration and automatically import your activities:
+
+### 1. Create a Strava API Application
+
+1. Go to [Strava API Settings](https://www.strava.com/settings/api)
+2. Click "Create App" (or use an existing app)
+3. Fill in the application details:
+   - **Application Name**: Running Dashboard (or your choice)
+   - **Category**: Your choice
+   - **Website**: `http://localhost:4200`
+   - **Authorization Callback Domain**: `localhost`
+4. After creating, note your **Client ID** and **Client Secret**
+
+### 2. Configure Backend
+
+Open `backend/appsettings.json` and update the Strava configuration:
+
+```json
+"Strava": {
+  "ClientId": "YOUR_STRAVA_CLIENT_ID",
+  "ClientSecret": "YOUR_STRAVA_CLIENT_SECRET",
+  "RedirectUri": "http://localhost:4200/strava/callback",
+  "AuthorizationEndpoint": "https://www.strava.com/oauth/authorize",
+  "TokenEndpoint": "https://www.strava.com/oauth/token",
+  "ApiBaseUrl": "https://www.strava.com/api/v3"
+}
+```
+
+Replace `YOUR_STRAVA_CLIENT_ID` and `YOUR_STRAVA_CLIENT_SECRET` with your actual values from Step 1.
+
+### 3. Using Strava Integration
+
+1. Start both backend and frontend applications
+2. In the Running Dashboard UI, click **"Connect to Strava"** button
+3. You'll be redirected to Strava to authorize the application
+4. After authorization, you'll be redirected back to the dashboard
+5. Click **"Import Activities"** to sync your recent Strava activities
+6. Activities are automatically imported with duplicate detection
+
+**Note**: The free Strava API has rate limits. Be mindful when importing large numbers of activities.
+
 ## API Endpoints
 
 ### Base URL
@@ -130,7 +175,7 @@ running-dashboard/
 http://localhost:5023/api/activities
 ```
 
-### Endpoints
+### Activity Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -139,6 +184,15 @@ http://localhost:5023/api/activities
 | POST | `/api/activities` | Create a new activity |
 | PUT | `/api/activities/{id}` | Update an existing activity |
 | DELETE | `/api/activities/{id}` | Delete an activity |
+
+### Strava Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/strava/auth-url` | Get Strava OAuth authorization URL |
+| POST | `/api/strava/exchange-token` | Exchange authorization code for access token |
+| POST | `/api/strava/import-activities` | Import activities from Strava |
+| POST | `/api/strava/athlete` | Get athlete profile from Strava |
 
 ### Example Activity JSON
 
@@ -163,7 +217,7 @@ The application uses SQLite for local data storage. The database file (`running-
 public class Activity
 {
     public int Id { get; set; }
-    public string? StravaId { get; set; }        // Optional, for future Strava integration
+    public string? StravaId { get; set; }        // Strava activity ID (for imported activities)
     public string Type { get; set; }             // "Run", "Ride", etc.
     public double DistanceMeters { get; set; }
     public int MovingTimeSeconds { get; set; }
@@ -180,16 +234,16 @@ public class Activity
 - **Database connection**: Configured in `appsettings.json`
 - **CORS**: Configured to allow requests from `http://localhost:4200`
 - **Logging**: Configured for development with detailed Entity Framework logs
+- **Strava API**: Client ID and secret configured in `appsettings.json`
 
 ### Frontend Configuration
 
 - **API URL**: Configured in `ActivityService` as `http://localhost:5023/api/activities`
 - **Bootstrap**: Configured in `angular.json` styles array
 - **HttpClient**: Configured as a provider in `app.config.ts`
+- **Strava Token**: Stored in browser localStorage for persistent connection
 
 ## Future Enhancements
-
-- 🔄 Strava API integration for automatic activity import
 - 📊 Advanced statistics and charts (weekly/monthly summaries)
 - 🗺️ Map visualization of routes
 - 🏃 Pace zones and heart rate zones analysis

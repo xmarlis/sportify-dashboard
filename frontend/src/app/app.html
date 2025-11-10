@@ -13,6 +13,9 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
+    <!-- Strava Integration -->
+    <app-strava-connect (activitiesImported)="onActivitiesImported()"></app-strava-connect>
+
     <!-- Activity Form -->
     <app-activity-form (createActivity)="onCreateActivity($event)"></app-activity-form>
 

@@ -1,0 +1,20 @@
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #fc4c02;
+}
+
+.card-header {
+  font-weight: 500;
+}
+
+.btn {
+  font-weight: 500;
+}
+
+svg {
+  vertical-align: middle;
+}
+
+.bi-strava {
+  fill: #fc4c02;
+}
