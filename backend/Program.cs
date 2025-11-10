@@ -37,6 +37,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configure Kestrel to use port 5023
+builder.WebHost.UseUrls("http://localhost:5023");
+
 var app = builder.Build();
 
 // Ensure database is created
