@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.container-fluid {
+  max-width: 1400px;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+.card {
+  border: none;
+  margin-bottom: 2rem;
+}
+
+.shadow {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+footer {
+  padding: 1rem 0;
+  font-size: 0.9rem;
+}

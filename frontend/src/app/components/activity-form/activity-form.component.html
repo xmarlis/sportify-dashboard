@@ -1,0 +1,142 @@
+<div class="card mb-4">
+  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">Create New Activity</h5>
+    <button class="btn btn-light btn-sm" (click)="toggleForm()">
+      {{ isFormVisible ? 'Cancel' : 'New Activity' }}
+    </button>
+  </div>
+
+  <div class="card-body" *ngIf="isFormVisible">
+    <form (ngSubmit)="onSubmit()" #activityForm="ngForm">
+      <div class="row">
+        <!-- Activity Type -->
+        <div class="col-md-6 mb-3">
+          <label for="type" class="form-label">Type</label>
+          <select
+            id="type"
+            name="type"
+            class="form-select"
+            [(ngModel)]="newActivity.type"
+            required>
+            <option value="Run">Run</option>
+            <option value="Ride">Ride</option>
+            <option value="Walk">Walk</option>
+            <option value="Hike">Hike</option>
+          </select>
+        </div>
+
+        <!-- Start Date -->
+        <div class="col-md-6 mb-3">
+          <label for="startDate" class="form-label">Date & Time</label>
+          <input
+            type="datetime-local"
+            id="startDate"
+            name="startDate"
+            class="form-control"
+            [(ngModel)]="newActivity.startDate"
+            required>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Distance -->
+        <div class="col-md-6 mb-3">
+          <label for="distance" class="form-label">Distance (km)</label>
+          <input
+            type="number"
+            id="distance"
+            name="distance"
+            class="form-control"
+            [(ngModel)]="distanceKm"
+            step="0.01"
+            min="0"
+            required>
+        </div>
+
+        <!-- Elevation -->
+        <div class="col-md-6 mb-3">
+          <label for="elevation" class="form-label">Elevation Gain (m)</label>
+          <input
+            type="number"
+            id="elevation"
+            name="elevation"
+            class="form-control"
+            [(ngModel)]="newActivity.totalElevationGain"
+            step="1"
+            min="0"
+            required>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Time -->
+        <div class="col-md-4 mb-3">
+          <label for="hours" class="form-label">Hours</label>
+          <input
+            type="number"
+            id="hours"
+            name="hours"
+            class="form-control"
+            [(ngModel)]="hours"
+            min="0"
+            required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label for="minutes" class="form-label">Minutes</label>
+          <input
+            type="number"
+            id="minutes"
+            name="minutes"
+            class="form-control"
+            [(ngModel)]="minutes"
+            min="0"
+            max="59"
+            required>
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label for="seconds" class="form-label">Seconds</label>
+          <input
+            type="number"
+            id="seconds"
+            name="seconds"
+            class="form-control"
+            [(ngModel)]="seconds"
+            min="0"
+            max="59"
+            required>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Heart Rate (Optional) -->
+        <div class="col-md-6 mb-3">
+          <label for="heartRate" class="form-label">Average Heart Rate (optional)</label>
+          <input
+            type="number"
+            id="heartRate"
+            name="heartRate"
+            class="form-control"
+            [(ngModel)]="newActivity.averageHeartRate"
+            min="0">
+        </div>
+      </div>
+
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="toggleForm()">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="!activityForm.form.valid">
+          Create Activity
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

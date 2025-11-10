@@ -1,0 +1,39 @@
+<div class="table-responsive">
+  <table class="table table-hover table-striped">
+    <thead class="table-dark">
+      <tr>
+        <th>Date</th>
+        <th>Type</th>
+        <th>Distance (km)</th>
+        <th>Time</th>
+        <th>Pace (min/km)</th>
+        <th>Avg HR</th>
+        <th>Elevation (m)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let activity of activities">
+        <td>{{ formatDate(activity.startDate) }}</td>
+        <td>
+          <span [ngClass]="getTypeBadgeClass(activity.type)">{{ activity.type }}</span>
+        </td>
+        <td>{{ getDistanceInKm(activity.distanceMeters) }}</td>
+        <td>{{ formatTime(activity.movingTimeSeconds) }}</td>
+        <td>{{ getAveragePace(activity.distanceMeters, activity.movingTimeSeconds) }}</td>
+        <td>{{ activity.averageHeartRate ? (activity.averageHeartRate | number:'1.0-0') : 'N/A' }}</td>
+        <td>{{ activity.totalElevationGain | number:'1.0-0' }}</td>
+        <td>
+          <button class="btn btn-sm btn-danger" (click)="onDelete(activity.id)">
+            Delete
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="activities.length === 0">
+        <td colspan="8" class="text-center text-muted">
+          No activities found. Create your first activity above!
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
