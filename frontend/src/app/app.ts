@@ -6,10 +6,11 @@ import { Activity } from './models/activity.model';
 import { ActivityTableComponent } from './components/activity-table/activity-table.component';
 import { ActivityFormComponent } from './components/activity-form/activity-form.component';
 import { StravaConnectComponent } from './components/strava-connect/strava-connect.component';
+import { StatisticsDashboardComponent } from './components/statistics-dashboard/statistics-dashboard.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, ActivityTableComponent, ActivityFormComponent, StravaConnectComponent],
+  imports: [CommonModule, RouterOutlet, ActivityTableComponent, ActivityFormComponent, StravaConnectComponent, StatisticsDashboardComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

@@ -72,14 +72,15 @@ public class StravaController : ControllerBase
     }
 
     /// <summary>
-    /// Import activities from Strava
+    /// Import ALL activities from Strava (with pagination)
     /// </summary>
     [HttpPost("import-activities")]
     public async Task<IActionResult> ImportActivities([FromBody] ImportActivitiesRequest request)
     {
         try
         {
-            var activities = await _stravaService.GetAthleteActivitiesAsync(request.AccessToken);
+            // Fetch ALL activities from Strava
+            var activities = await _stravaService.GetAllAthleteActivitiesAsync(request.AccessToken);
 
             if (activities == null || activities.Count == 0)
             {
@@ -118,7 +119,7 @@ public class StravaController : ControllerBase
                 imported = importedCount,
                 skipped = skippedCount,
                 total = activities.Count,
-                message = $"Successfully imported {importedCount} activities"
+                message = $"Successfully imported {importedCount} activities (skipped {skippedCount} duplicates)"
             });
         }
         catch (Exception ex)
