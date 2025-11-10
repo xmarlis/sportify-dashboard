@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using RunningDashboard.Models;
 
 namespace RunningDashboard.Services;
@@ -180,7 +181,7 @@ public class StravaService
             DistanceMeters = stravaActivity.Distance,
             MovingTimeSeconds = stravaActivity.MovingTime,
             TotalElevationGain = stravaActivity.TotalElevationGain,
-            StartDate = stravaActivity.StartDate,
+            StartDate = stravaActivity.StartDateLocal, // Use local time for better UX
             AverageHeartRate = stravaActivity.AverageHeartrate
         };
     }
@@ -218,14 +219,33 @@ public class StravaActivity
     public long Id { get; set; }
     public string? Name { get; set; }
     public double Distance { get; set; }
+
+    [JsonPropertyName("moving_time")]
     public int MovingTime { get; set; }
+
+    [JsonPropertyName("elapsed_time")]
     public int ElapsedTime { get; set; }
+
+    [JsonPropertyName("total_elevation_gain")]
     public double TotalElevationGain { get; set; }
+
     public string? Type { get; set; }
+
+    [JsonPropertyName("start_date")]
     public DateTime StartDate { get; set; }
+
+    [JsonPropertyName("start_date_local")]
     public DateTime StartDateLocal { get; set; }
+
+    [JsonPropertyName("average_speed")]
     public double? AverageSpeed { get; set; }
+
+    [JsonPropertyName("max_speed")]
     public double? MaxSpeed { get; set; }
+
+    [JsonPropertyName("average_heartrate")]
     public double? AverageHeartrate { get; set; }
+
+    [JsonPropertyName("max_heartrate")]
     public double? MaxHeartrate { get; set; }
 }
