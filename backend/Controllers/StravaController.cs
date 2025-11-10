@@ -59,6 +59,9 @@ public class StravaController : ControllerBase
                 return BadRequest("Failed to exchange token with Strava");
             }
 
+            _logger.LogInformation("Returning token to frontend - AccessToken length: {Length}",
+                tokenResponse.AccessToken?.Length ?? 0);
+
             return Ok(tokenResponse);
         }
         catch (Exception ex)

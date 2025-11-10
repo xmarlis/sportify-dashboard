@@ -44,10 +44,16 @@ public class StravaService
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Strava token response: {Content}", content);
+
             var tokenResponse = JsonSerializer.Deserialize<StravaTokenResponse>(content, new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             });
+
+            _logger.LogInformation("Deserialized - AccessToken present: {HasToken}, Athlete: {Athlete}",
+                !string.IsNullOrEmpty(tokenResponse?.AccessToken),
+                tokenResponse?.Athlete?.Firstname);
 
             return tokenResponse;
         }
