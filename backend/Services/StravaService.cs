@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using RunningDashboard.Models;
 
 namespace RunningDashboard.Services;
@@ -145,11 +146,22 @@ public class StravaService
 /// </summary>
 public class StravaTokenResponse
 {
+    [JsonPropertyName("token_type")]
     public string? TokenType { get; set; }
+
+    [JsonPropertyName("expires_at")]
     public long ExpiresAt { get; set; }
+
+    [JsonPropertyName("expires_in")]
     public int ExpiresIn { get; set; }
+
+    [JsonPropertyName("refresh_token")]
     public string? RefreshToken { get; set; }
+
+    [JsonPropertyName("access_token")]
     public string? AccessToken { get; set; }
+
+    [JsonPropertyName("athlete")]
     public StravaAthlete? Athlete { get; set; }
 }
 
@@ -158,9 +170,16 @@ public class StravaTokenResponse
 /// </summary>
 public class StravaAthlete
 {
+    [JsonPropertyName("id")]
     public long Id { get; set; }
+
+    [JsonPropertyName("username")]
     public string? Username { get; set; }
+
+    [JsonPropertyName("firstname")]
     public string? Firstname { get; set; }
+
+    [JsonPropertyName("lastname")]
     public string? Lastname { get; set; }
 }
 
@@ -169,17 +188,42 @@ public class StravaAthlete
 /// </summary>
 public class StravaActivity
 {
+    [JsonPropertyName("id")]
     public long Id { get; set; }
+
+    [JsonPropertyName("name")]
     public string? Name { get; set; }
+
+    [JsonPropertyName("distance")]
     public double Distance { get; set; }
+
+    [JsonPropertyName("moving_time")]
     public int MovingTime { get; set; }
+
+    [JsonPropertyName("elapsed_time")]
     public int ElapsedTime { get; set; }
+
+    [JsonPropertyName("total_elevation_gain")]
     public double TotalElevationGain { get; set; }
+
+    [JsonPropertyName("type")]
     public string? Type { get; set; }
+
+    [JsonPropertyName("start_date")]
     public DateTime StartDate { get; set; }
+
+    [JsonPropertyName("start_date_local")]
     public DateTime StartDateLocal { get; set; }
+
+    [JsonPropertyName("average_speed")]
     public double? AverageSpeed { get; set; }
+
+    [JsonPropertyName("max_speed")]
     public double? MaxSpeed { get; set; }
+
+    [JsonPropertyName("average_heartrate")]
     public double? AverageHeartrate { get; set; }
+
+    [JsonPropertyName("max_heartrate")]
     public double? MaxHeartrate { get; set; }
 }
