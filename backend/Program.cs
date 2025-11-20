@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RunningDashboard.Data;
 using RunningDashboard.Services;
@@ -5,7 +6,11 @@ using RunningDashboard.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
+    });
 
 // Configure SQLite database
 builder.Services.AddDbContext<AppDbContext>(options =>

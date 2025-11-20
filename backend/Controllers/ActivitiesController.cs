@@ -198,7 +198,7 @@ public class ActivitiesController : ControllerBase
 
             // Average statistics
             var averageDistance = totalDistance / activities.Count;
-            var runActivities = activities.Where(a => a.Type == "Run").ToList();
+            var runActivities = activities.Where(a => a.Type == "Run" && a.DistanceMeters > 0).ToList();
             var averagePace = runActivities.Count > 0
                 ? runActivities.Average(a => a.MovingTimeSeconds / (a.DistanceMeters / 1000.0))
                 : 0.0;
