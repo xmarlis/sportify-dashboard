@@ -57,10 +57,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
-
-// Enable CORS
+// Enable CORS - must come before other middleware
 app.UseCors("AllowAngularApp");
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
