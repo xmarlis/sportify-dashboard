@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using RunningDashboard.Data;
 using RunningDashboard.Services;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        // Handle NaN and Infinity values gracefully by converting them to 0
+        options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
     });
 
 // Configure SQLite database
@@ -65,10 +68,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
-
-// Enable CORS
+// Enable CORS - must be before UseHttpsRedirection and UseAuthorization
 app.UseCors("AllowAngularApp");
+
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
