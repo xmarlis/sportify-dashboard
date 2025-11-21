@@ -33,6 +33,57 @@ export class StravaService {
   }
 
   /**
+   * Refresh access token using refresh token
+   */
+  refreshToken(): Observable<StravaToken> {
+    const token = this.tokenSubject.value;
+    if (!token || !token.refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+
+    return this.http.post<StravaToken>(`${this.apiUrl}/refresh-token`, { 
+      refreshToken: token.refreshToken 
+    }).pipe(
+      tap(newToken => this.storeToken(newToken))
+    );
+  }
+
+  /**
+   * Check if token is expired or about to expire (within 5 minutes)
+   */
+  isTokenExpired(): boolean {
+    const token = this.tokenSubject.value;
+    if (!token || !token.expiresAt) return true;
+
+    // Check if token expires within the next 5 minutes
+    const expirationTime = token.expiresAt * 1000; // Convert to milliseconds
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+
+    return (expirationTime - now) < fiveMinutes;
+  }
+
+  /**
+   * Get a valid access token, refreshing if necessary
+   */
+  async getValidAccessToken(): Promise<string | null> {
+    if (this.isTokenExpired()) {
+      try {
+        console.log('Token expired, refreshing...');
+        const newToken = await this.refreshToken().toPromise();
+        return newToken?.accessToken || null;
+      } catch (error) {
+        console.error('Failed to refresh token:', error);
+        // If refresh fails, disconnect user
+        this.disconnect();
+        return null;
+      }
+    }
+
+    return this.getAccessToken();
+  }
+
+  /**
    * Import activities from Strava
    */
   importActivities(accessToken?: string): Observable<ImportResult> {
@@ -45,6 +96,20 @@ export class StravaService {
       accessToken: token,
       page: 1,
       perPage: 50
+    });
+  }
+
+  /**
+   * Sync new activities from Strava (only activities newer than the most recent one in DB)
+   */
+  syncNewActivities(accessToken?: string): Observable<ImportResult> {
+    const token = accessToken || this.getAccessToken();
+    if (!token) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    return this.http.post<ImportResult>(`${this.apiUrl}/sync-new-activities`, {
+      accessToken: token
     });
   }
 
@@ -71,6 +136,14 @@ export class StravaService {
     if (!anyToken.accessToken && anyToken.access_token) {
       anyToken.accessToken = anyToken.access_token;
     }
+    if (!anyToken.refreshToken && anyToken.refresh_token) {
+      anyToken.refreshToken = anyToken.refresh_token;
+    }
+    if (!anyToken.expiresAt && anyToken.expires_at) {
+      anyToken.expiresAt = anyToken.expires_at;
+    }
+
+    console.log('Storing token, expires at:', new Date(anyToken.expiresAt * 1000).toLocaleString());
 
     localStorage.setItem('strava_token', JSON.stringify(anyToken));
     this.tokenSubject.next(anyToken as StravaToken);

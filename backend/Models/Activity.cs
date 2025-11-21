@@ -1,14 +1,14 @@
 namespace RunningDashboard.Models;
 
 /// <summary>
-/// Represents a running or cycling activity
+/// Represents a running, cycling, hiking, walking or swimming activity
 /// </summary>
 public class Activity
 {
     public int Id { get; set; }
 
     /// <summary>
-    /// Optional Strava activity ID for future integration
+    /// Optional Strava activity ID for integration
     /// </summary>
     public string? StravaId { get; set; }
 
@@ -18,7 +18,7 @@ public class Activity
     public string? Name { get; set; }
 
     /// <summary>
-    /// Activity type (e.g., "Run", "Ride")
+    /// Activity type (e.g., "Run", "Ride", "Walk", "Hike", "Swim")
     /// </summary>
     public string Type { get; set; } = "Run";
 
@@ -48,27 +48,27 @@ public class Activity
     public DateTime StartDate { get; set; }
 
     /// <summary>
-    /// Encoded polyline string for route (reserved for future use)
+    /// Encoded polyline string representing the route (Google Polyline Algorithm)
     /// </summary>
     public string? SummaryPolyline { get; set; }
 
     /// <summary>
-    /// Starting latitude (reserved for future use)
+    /// Starting latitude of the activity
     /// </summary>
     public double? StartLatitude { get; set; }
 
     /// <summary>
-    /// Starting longitude (reserved for future use)
+    /// Starting longitude of the activity
     /// </summary>
     public double? StartLongitude { get; set; }
 
     /// <summary>
-    /// Ending latitude (reserved for future use)
+    /// Ending latitude of the activity
     /// </summary>
     public double? EndLatitude { get; set; }
 
     /// <summary>
-    /// Ending longitude (reserved for future use)
+    /// Ending longitude of the activity
     /// </summary>
     public double? EndLongitude { get; set; }
 }

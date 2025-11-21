@@ -221,6 +221,102 @@ public class StravaService
     }
 
     /// <summary>
+    /// Get activities after a specific date from Strava
+    /// </summary>
+    public async Task<List<StravaActivity>> GetActivitiesAfterDateAsync(string accessToken, DateTime? afterDate, int perPage = 200)
+    {
+        try
+        {
+            var allActivities = new List<StravaActivity>();
+            var page = 1;
+            var hasMoreActivities = true;
+
+            // Convert DateTime to Unix timestamp (seconds since epoch)
+            // Important: Strava uses UTC, so we need to ensure we're using UTC time
+            long? afterTimestamp = null;
+            if (afterDate.HasValue)
+            {
+                // Ensure we're working with UTC
+                var utcDate = afterDate.Value.Kind == DateTimeKind.Utc 
+                    ? afterDate.Value 
+                    : afterDate.Value.ToUniversalTime();
+                
+                afterTimestamp = new DateTimeOffset(utcDate).ToUnixTimeSeconds();
+                _logger.LogInformation(
+                    "Fetching activities after: {Date} UTC (timestamp: {Timestamp})", 
+                    utcDate.ToString("yyyy-MM-dd HH:mm:ss"), 
+                    afterTimestamp);
+            }
+            else
+            {
+                _logger.LogInformation("Fetching all activities (no date filter)");
+            }
+
+            var apiBaseUrl = _configuration["Strava:ApiBaseUrl"];
+
+            while (hasMoreActivities)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Build URL with 'after' parameter if provided
+                var url = $"{apiBaseUrl}/athlete/activities?page={page}&per_page={perPage}";
+                if (afterTimestamp.HasValue)
+                {
+                    url += $"&after={afterTimestamp.Value}";
+                }
+
+                _logger.LogDebug("Requesting Strava API: {Url}", url.Replace(accessToken, "***"));
+
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                _logger.LogDebug("Strava API response length: {Length} characters", content.Length);
+
+                var activities = JsonSerializer.Deserialize<List<StravaActivity>>(content, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (activities == null || activities.Count == 0)
+                {
+                    _logger.LogInformation("No more activities found on page {Page}", page);
+                    hasMoreActivities = false;
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        "Fetched page {Page} with {Count} activities. First: {FirstDate}, Last: {LastDate}", 
+                        page, 
+                        activities.Count,
+                        activities.First().StartDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                        activities.Last().StartDate.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                    allActivities.AddRange(activities);
+
+                    // If we received fewer activities than requested, we've reached the end
+                    if (activities.Count < perPage)
+                    {
+                        hasMoreActivities = false;
+                    }
+                    else
+                    {
+                        page++;
+                    }
+                }
+            }
+
+            _logger.LogInformation("Total new activities fetched: {Total}", allActivities.Count);
+            return allActivities;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching new Strava activities after date");
+            return new List<StravaActivity>();
+        }
+    }
+
+    /// <summary>
     /// Convert Strava activity to our Activity model
     /// </summary>
     public Activity ConvertStravaActivity(StravaActivity stravaActivity)
