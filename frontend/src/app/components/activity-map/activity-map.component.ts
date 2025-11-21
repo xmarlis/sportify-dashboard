@@ -165,7 +165,7 @@ export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Add popup with activity info
-      const date = new Date(activity.startDate).toLocaleDateString('de-DE');
+      const date = new Date(activity.startDate).toLocaleDateString('en-US');
       const distance = (activity.distanceMeters / 1000).toFixed(2);
       const duration = this.formatDuration(activity.movingTimeSeconds);
 
@@ -174,9 +174,9 @@ export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy {
           <strong>${activity.name || activity.type}</strong><br>
           <small>${date}</small><br>
           <hr style="margin: 5px 0;">
-          <b>Distanz:</b> ${distance} km<br>
-          <b>Zeit:</b> ${duration}<br>
-          <b>Typ:</b> ${activity.type}
+          <b>Distance:</b> ${distance} km<br>
+          <b>Time:</b> ${duration}<br>
+          <b>Type:</b> ${activity.type}
         </div>
       `);
 
