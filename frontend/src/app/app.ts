@@ -7,24 +7,15 @@ import { ActivityTableComponent } from './components/activity-table/activity-tab
 import { ActivityFormComponent } from './components/activity-form/activity-form.component';
 import { StravaConnectComponent } from './components/strava-connect/strava-connect.component';
 import { StatisticsDashboardComponent } from './components/statistics-dashboard/statistics-dashboard.component';
-import { ActivityMapComponent } from './components/activity-map/activity-map.component';
 
 @Component({
   selector: 'app-root',
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    ActivityTableComponent,
-    ActivityFormComponent,
-    StravaConnectComponent,
-    StatisticsDashboardComponent,
-    ActivityMapComponent
-  ],
+  imports: [CommonModule, RouterOutlet, ActivityTableComponent, ActivityFormComponent, StravaConnectComponent, StatisticsDashboardComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App implements OnInit {
-  title = 'Sportify Dashboard';
+  title = 'Running Dashboard';
   activities: Activity[] = [];
   isLoading = false;
   errorMessage = '';
