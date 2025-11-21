@@ -4,6 +4,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StravaService } from '../../services/strava.service';
 
 /**
+ * Error response structure from backend
+ */
+interface StravaErrorResponse {
+  error: boolean;
+  errorCode: string;
+  message: string;
+  detailedMessage?: string;
+}
+
+/**
  * Component to handle Strava OAuth callback
  */
 @Component({
@@ -16,6 +26,9 @@ import { StravaService } from '../../services/strava.service';
 export class StravaCallbackComponent implements OnInit {
   isProcessing = true;
   error = '';
+  errorCode = '';
+  detailedError = '';
+  isAthleteLimitError = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -30,14 +43,14 @@ export class StravaCallbackComponent implements OnInit {
       const error = params['error'];
 
       if (error) {
-        this.error = 'Authorization denied or failed.';
+        this.error = 'Autorisierung wurde verweigert oder ist fehlgeschlagen.';
         this.isProcessing = false;
         setTimeout(() => this.router.navigate(['/']), 3000);
         return;
       }
 
       if (!code) {
-        this.error = 'No authorization code received.';
+        this.error = 'Kein Autorisierungscode erhalten.';
         this.isProcessing = false;
         setTimeout(() => this.router.navigate(['/']), 3000);
         return;
@@ -54,11 +67,33 @@ export class StravaCallbackComponent implements OnInit {
         },
         error: (err) => {
           console.error('Error exchanging Strava token:', err);
-          this.error = 'Failed to connect to Strava. Please try again.';
           this.isProcessing = false;
-          setTimeout(() => this.router.navigate(['/']), 3000);
+
+          // Parse error response
+          const errorBody = err.error as StravaErrorResponse;
+
+          if (errorBody?.errorCode) {
+            this.errorCode = errorBody.errorCode;
+            this.error = errorBody.message;
+            this.detailedError = errorBody.detailedMessage || '';
+
+            // Check for athlete limit error
+            if (errorBody.errorCode === 'ATHLETE_LIMIT_EXCEEDED') {
+              this.isAthleteLimitError = true;
+              // Don't auto-redirect for this error - let user read the message
+              return;
+            }
+          } else {
+            this.error = 'Verbindung mit Strava fehlgeschlagen. Bitte versuchen Sie es erneut.';
+          }
+
+          setTimeout(() => this.router.navigate(['/']), 5000);
         }
       });
     });
+  }
+
+  goHome(): void {
+    this.router.navigate(['/']);
   }
 }

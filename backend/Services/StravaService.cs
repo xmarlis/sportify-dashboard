@@ -24,7 +24,7 @@ public class StravaService
     /// <summary>
     /// Exchange authorization code for access token
     /// </summary>
-    public async Task<StravaTokenResponse?> ExchangeTokenAsync(string code)
+    public async Task<(StravaTokenResponse? Token, StravaErrorResponse? Error)> ExchangeTokenAsync(string code)
     {
         try
         {
@@ -41,9 +41,49 @@ public class StravaService
             };
 
             var response = await _httpClient.PostAsync(tokenEndpoint, new FormUrlEncodedContent(requestData));
-            response.EnsureSuccessStatusCode();
-
             var content = await response.Content.ReadAsStringAsync();
+
+            // Handle specific Strava API errors
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Strava API error: {StatusCode} - {Content}", response.StatusCode, content);
+
+                var errorResponse = new StravaErrorResponse
+                {
+                    StatusCode = (int)response.StatusCode,
+                    Message = content
+                };
+
+                // Check for athlete limit exceeded error (403)
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    if (content.Contains("athlete", StringComparison.OrdinalIgnoreCase) &&
+                        content.Contains("limit", StringComparison.OrdinalIgnoreCase))
+                    {
+                        errorResponse.ErrorCode = "ATHLETE_LIMIT_EXCEEDED";
+                        errorResponse.Message = "Diese App hat das Limit verbundener Sportler überschritten. Die Strava-Entwickler-App ist auf eine begrenzte Anzahl von Benutzern beschränkt.";
+                        errorResponse.DetailedMessage = "Strava beschränkt Entwicklungs-Apps auf ca. 15-20 verbundene Athleten. Um mehr Benutzer zu unterstützen, muss der App-Entwickler bei Strava eine Produktionsfreigabe beantragen.";
+                    }
+                    else
+                    {
+                        errorResponse.ErrorCode = "FORBIDDEN";
+                        errorResponse.Message = "Zugriff auf Strava wurde verweigert.";
+                    }
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    errorResponse.ErrorCode = "UNAUTHORIZED";
+                    errorResponse.Message = "Die Autorisierung ist fehlgeschlagen oder abgelaufen.";
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                {
+                    errorResponse.ErrorCode = "RATE_LIMIT_EXCEEDED";
+                    errorResponse.Message = "Zu viele Anfragen. Bitte versuchen Sie es später erneut.";
+                }
+
+                return (null, errorResponse);
+            }
+
             _logger.LogInformation("Strava token response: {Content}", content);
 
             var tokenResponse = JsonSerializer.Deserialize<StravaTokenResponse>(content, new JsonSerializerOptions
@@ -55,12 +95,17 @@ public class StravaService
                 !string.IsNullOrEmpty(tokenResponse?.AccessToken),
                 tokenResponse?.Athlete?.Firstname);
 
-            return tokenResponse;
+            return (tokenResponse, null);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error exchanging Strava authorization code");
-            return null;
+            return (null, new StravaErrorResponse
+            {
+                StatusCode = 500,
+                ErrorCode = "INTERNAL_ERROR",
+                Message = "Ein unerwarteter Fehler ist aufgetreten."
+            });
         }
     }
 
@@ -278,4 +323,15 @@ public class StravaActivity
 
     [JsonPropertyName("max_heartrate")]
     public double? MaxHeartrate { get; set; }
+}
+
+/// <summary>
+/// Strava API error response
+/// </summary>
+public class StravaErrorResponse
+{
+    public int StatusCode { get; set; }
+    public string ErrorCode { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+    public string? DetailedMessage { get; set; }
 }
