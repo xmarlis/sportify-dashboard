@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit, OnChanges, SimpleChanges, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Activity } from '../../models/activity.model';
@@ -78,7 +78,19 @@ export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy, O
   private map: L.Map | null = null;
   private routeLayers: L.LayerGroup = L.layerGroup();
 
+  // Fullscreen map
+  private fullscreenMap: L.Map | null = null;
+  private fullscreenRouteLayers: L.LayerGroup = L.layerGroup();
+  isFullscreen = false;
+
   activityTypes: { type: string; color: string; count: number; visible: boolean }[] = [];
+
+  @HostListener('document:keydown.escape')
+  onEscapeKey(): void {
+    if (this.isFullscreen) {
+      this.closeFullscreen();
+    }
+  }
 
   ngOnInit(): void {
     this.updateActivityTypes();
@@ -102,6 +114,9 @@ export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy, O
   ngOnDestroy(): void {
     if (this.map) {
       this.map.remove();
+    }
+    if (this.fullscreenMap) {
+      this.fullscreenMap.remove();
     }
   }
 
@@ -217,6 +232,115 @@ export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy, O
     if (activityType) {
       activityType.visible = !activityType.visible;
       this.drawRoutes();
+      // Also update fullscreen map if open
+      if (this.fullscreenMap) {
+        this.drawRoutesOnMap(this.fullscreenMap, this.fullscreenRouteLayers);
+      }
+    }
+  }
+
+  openFullscreen(): void {
+    if (this.getRoutesCount() === 0) return;
+
+    this.isFullscreen = true;
+    document.body.style.overflow = 'hidden';
+
+    // Initialize fullscreen map after DOM updates
+    setTimeout(() => {
+      this.initFullscreenMap();
+    }, 50);
+  }
+
+  closeFullscreen(): void {
+    this.isFullscreen = false;
+    document.body.style.overflow = '';
+
+    // Clean up fullscreen map
+    if (this.fullscreenMap) {
+      this.fullscreenMap.remove();
+      this.fullscreenMap = null;
+      this.fullscreenRouteLayers = L.layerGroup();
+    }
+  }
+
+  private initFullscreenMap(): void {
+    const mapContainer = document.getElementById('activity-map-fullscreen');
+    if (!mapContainer) return;
+
+    this.fullscreenMap = L.map('activity-map-fullscreen', {
+      center: [48.2082, 16.3738],
+      zoom: 10
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.fullscreenMap);
+
+    this.fullscreenRouteLayers.addTo(this.fullscreenMap);
+    this.drawRoutesOnMap(this.fullscreenMap, this.fullscreenRouteLayers);
+  }
+
+  private drawRoutesOnMap(map: L.Map, layerGroup: L.LayerGroup): void {
+    layerGroup.clearLayers();
+    let hasRoutes = false;
+
+    const visibleTypes = this.activityTypes
+      .filter(t => t.visible)
+      .map(t => t.type);
+
+    const activitiesToShow = this.activities.filter(
+      activity => activity.summaryPolyline && visibleTypes.includes(activity.type)
+    );
+
+    activitiesToShow.forEach(activity => {
+      if (!activity.summaryPolyline) return;
+
+      const coordinates = decodePolyline(activity.summaryPolyline);
+      if (coordinates.length === 0) return;
+
+      hasRoutes = true;
+      const color = getActivityColor(activity.type);
+
+      const polyline = L.polyline(coordinates as L.LatLngExpression[], {
+        color: color,
+        weight: 3,
+        opacity: 0.7
+      });
+
+      const date = new Date(activity.startDate).toLocaleDateString('en-US');
+      const distance = (activity.distanceMeters / 1000).toFixed(2);
+      const duration = this.formatDuration(activity.movingTimeSeconds);
+
+      polyline.bindPopup(`
+        <div style="min-width: 150px;">
+          <strong>${activity.name || activity.type}</strong><br>
+          <small>${date}</small><br>
+          <hr style="margin: 5px 0;">
+          <b>Distance:</b> ${distance} km<br>
+          <b>Time:</b> ${duration}<br>
+          <b>Type:</b> ${activity.type}
+        </div>
+      `);
+
+      layerGroup.addLayer(polyline);
+    });
+
+    // Fit map to show all routes
+    if (hasRoutes && activitiesToShow.length > 0) {
+      const allCoords: L.LatLng[] = [];
+      activitiesToShow.forEach(activity => {
+        if (activity.summaryPolyline) {
+          const coords = decodePolyline(activity.summaryPolyline);
+          coords.forEach(([lat, lng]) => {
+            allCoords.push(L.latLng(lat, lng));
+          });
+        }
+      });
+
+      if (allCoords.length > 0) {
+        const bounds = L.latLngBounds(allCoords);
+        map.fitBounds(bounds, { padding: [20, 20] });
+      }
     }
   }
 

@@ -6,9 +6,16 @@
       </svg>
       Activity Map
     </h5>
-    <span class="badge bg-secondary">
-      {{ getVisibleRoutesCount() }} / {{ getRoutesCount() }} Routes
-    </span>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-secondary">
+        {{ getVisibleRoutesCount() }} / {{ getRoutesCount() }} Routes
+      </span>
+      <button class="btn btn-sm btn-outline-primary" (click)="openFullscreen()" title="Open fullscreen map">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707m4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707m0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707m-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707"/>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- Activity Type Filters -->
@@ -28,8 +35,16 @@
     </div>
   </div>
 
-  <!-- Map Container -->
-  <div id="activity-map" [style.height]="height" class="rounded shadow-sm"></div>
+  <!-- Map Container (clickable to expand) -->
+  <div class="map-wrapper" (click)="openFullscreen()">
+    <div id="activity-map" [style.height]="height" class="rounded shadow-sm"></div>
+    <div class="map-expand-hint" *ngIf="getRoutesCount() > 0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707m4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707m0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707m-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707"/>
+      </svg>
+      Click to expand
+    </div>
+  </div>
 
   <!-- No Routes Message -->
   <div *ngIf="getRoutesCount() === 0" class="alert alert-info mt-3">
@@ -38,5 +53,44 @@
       <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
     </svg>
     No routes available. Import activities with GPS data from Strava to see the map.
+  </div>
+</div>
+
+<!-- Fullscreen Modal -->
+<div class="map-modal-overlay" *ngIf="isFullscreen" (click)="closeFullscreen()">
+  <div class="map-modal-content" (click)="$event.stopPropagation()">
+    <div class="map-modal-header">
+      <h5 class="mb-0">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-map me-2" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.5.5 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103M10 1.91l-4-.8v12.98l4 .8zm1 12.98 4-.8V1.11l-4 .8zm-6-.8V1.11l-4 .8v12.98z"/>
+        </svg>
+        Activity Map
+      </h5>
+      <div class="d-flex align-items-center gap-3">
+        <!-- Activity Type Filters in Modal -->
+        <div class="activity-filters d-flex flex-wrap gap-2" *ngIf="activityTypes.length > 0">
+          <button
+            *ngFor="let actType of activityTypes"
+            class="btn btn-sm"
+            [class.btn-outline-secondary]="!actType.visible"
+            [style.backgroundColor]="actType.visible ? actType.color : 'transparent'"
+            [style.borderColor]="actType.color"
+            [style.color]="actType.visible ? 'white' : actType.color"
+            (click)="toggleActivityType(actType.type)"
+          >
+            {{ actType.type }} ({{ actType.count }})
+          </button>
+        </div>
+        <span class="badge bg-secondary">
+          {{ getVisibleRoutesCount() }} / {{ getRoutesCount() }} Routes
+        </span>
+        <button class="btn btn-sm btn-outline-light" (click)="closeFullscreen()" title="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div id="activity-map-fullscreen" class="map-modal-body"></div>
   </div>
 </div>
