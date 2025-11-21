@@ -13,6 +13,11 @@ public class Activity
     public string? StravaId { get; set; }
 
     /// <summary>
+    /// Activity name/title
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
     /// Activity type (e.g., "Run", "Ride")
     /// </summary>
     public string Type { get; set; } = "Run";
@@ -41,4 +46,29 @@ public class Activity
     /// Start date and time of the activity
     /// </summary>
     public DateTime StartDate { get; set; }
+
+    /// <summary>
+    /// Encoded polyline string for route (reserved for future use)
+    /// </summary>
+    public string? SummaryPolyline { get; set; }
+
+    /// <summary>
+    /// Starting latitude (reserved for future use)
+    /// </summary>
+    public double? StartLatitude { get; set; }
+
+    /// <summary>
+    /// Starting longitude (reserved for future use)
+    /// </summary>
+    public double? StartLongitude { get; set; }
+
+    /// <summary>
+    /// Ending latitude (reserved for future use)
+    /// </summary>
+    public double? EndLatitude { get; set; }
+
+    /// <summary>
+    /// Ending longitude (reserved for future use)
+    /// </summary>
+    public double? EndLongitude { get; set; }
 }
