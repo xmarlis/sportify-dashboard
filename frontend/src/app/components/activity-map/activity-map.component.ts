@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { Activity } from '../../models/activity.model';
@@ -70,7 +70,7 @@ function getActivityColor(type: string): string {
   templateUrl: './activity-map.component.html',
   styleUrls: ['./activity-map.component.css']
 })
-export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @Input() activities: Activity[] = [];
   @Input() height = '500px';
   @Input() filterTypes: string[] = [];
@@ -87,6 +87,16 @@ export class ActivityMapComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.initMap();
     this.drawRoutes();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activities'] && !changes['activities'].firstChange) {
+      // Activities have changed after initial load - update the map
+      this.updateActivityTypes();
+      if (this.map) {
+        this.drawRoutes();
+      }
+    }
   }
 
   ngOnDestroy(): void {

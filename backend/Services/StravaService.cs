@@ -329,7 +329,8 @@ public class StravaService
             DistanceMeters = stravaActivity.Distance,
             MovingTimeSeconds = stravaActivity.MovingTime,
             TotalElevationGain = stravaActivity.TotalElevationGain,
-            StartDate = stravaActivity.StartDate,
+            // Use StartDateLocal to show the time the activity was recorded in the user's local timezone
+            StartDate = stravaActivity.StartDateLocal,
             AverageHeartRate = stravaActivity.AverageHeartrate,
             SummaryPolyline = stravaActivity.Map?.SummaryPolyline,
             StartLatitude = stravaActivity.StartLatlng?.Length >= 2 ? stravaActivity.StartLatlng[0] : null,
