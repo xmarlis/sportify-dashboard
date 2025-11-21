@@ -228,12 +228,18 @@ public class StravaService
         return new Activity
         {
             StravaId = stravaActivity.Id.ToString(),
+            Name = stravaActivity.Name,
             Type = stravaActivity.Type ?? "Run",
             DistanceMeters = stravaActivity.Distance,
             MovingTimeSeconds = stravaActivity.MovingTime,
             TotalElevationGain = stravaActivity.TotalElevationGain,
             StartDate = stravaActivity.StartDate,
-            AverageHeartRate = stravaActivity.AverageHeartrate
+            AverageHeartRate = stravaActivity.AverageHeartrate,
+            SummaryPolyline = stravaActivity.Map?.SummaryPolyline,
+            StartLatitude = stravaActivity.StartLatlng?.Length >= 2 ? stravaActivity.StartLatlng[0] : null,
+            StartLongitude = stravaActivity.StartLatlng?.Length >= 2 ? stravaActivity.StartLatlng[1] : null,
+            EndLatitude = stravaActivity.EndLatlng?.Length >= 2 ? stravaActivity.EndLatlng[0] : null,
+            EndLongitude = stravaActivity.EndLatlng?.Length >= 2 ? stravaActivity.EndLatlng[1] : null
         };
     }
 }
@@ -323,6 +329,30 @@ public class StravaActivity
 
     [JsonPropertyName("max_heartrate")]
     public double? MaxHeartrate { get; set; }
+
+    [JsonPropertyName("map")]
+    public StravaMap? Map { get; set; }
+
+    [JsonPropertyName("start_latlng")]
+    public double[]? StartLatlng { get; set; }
+
+    [JsonPropertyName("end_latlng")]
+    public double[]? EndLatlng { get; set; }
+}
+
+/// <summary>
+/// Strava map data containing polyline
+/// </summary>
+public class StravaMap
+{
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("summary_polyline")]
+    public string? SummaryPolyline { get; set; }
+
+    [JsonPropertyName("polyline")]
+    public string? Polyline { get; set; }
 }
 
 /// <summary>

@@ -1,15 +1,26 @@
 <div class="container-fluid py-4">
+  <!-- Header -->
   <header class="mb-4">
-    <div class="bg-primary text-white p-4 rounded shadow">
-      <h1 class="display-4">{{ title }}</h1>
-      <p class="lead mb-0">Track and analyze your running and cycling activities</p>
+    <div class="bg-gradient text-white p-4 rounded shadow" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="display-5 fw-bold mb-1">{{ title }}</h1>
+          <p class="lead mb-0 opacity-75">Verfolge und analysiere deine Sport-Aktivitaeten</p>
+        </div>
+        <div class="d-none d-md-block">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="opacity-50" viewBox="0 0 16 16">
+            <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9z"/>
+            <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1zm1.038 3.018a6 6 0 0 1 .924 0 6 6 0 1 1-.924 0M0 3.5c0 .753.333 1.429.86 1.887A8.04 8.04 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5M13.5 1c-.753 0-1.429.333-1.887.86a8.04 8.04 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1"/>
+          </svg>
+        </div>
+      </div>
     </div>
   </header>
 
   <main>
     <!-- Error Message -->
     <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <strong>Error:</strong> {{ errorMessage }}
+      <strong>Fehler:</strong> {{ errorMessage }}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
@@ -19,34 +30,67 @@
     <!-- Statistics Dashboard -->
     <app-statistics-dashboard></app-statistics-dashboard>
 
-    <!-- Activity Form -->
-    <app-activity-form (createActivity)="onCreateActivity($event)"></app-activity-form>
-
-    <!-- Loading Spinner -->
-    <div *ngIf="isLoading" class="text-center my-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+    <!-- Map Section -->
+    <div class="card shadow mb-4">
+      <div class="card-body">
+        <app-activity-map [activities]="activities" height="450px"></app-activity-map>
       </div>
-      <p class="mt-3">Loading activities...</p>
     </div>
 
-    <!-- Activity Table -->
-    <div *ngIf="!isLoading" class="card shadow">
-      <div class="card-header bg-dark text-white">
-        <h5 class="mb-0">Activity List ({{ activities.length }} total)</h5>
+    <!-- Two Column Layout: Form and Table -->
+    <div class="row">
+      <!-- Activity Form -->
+      <div class="col-lg-4 mb-4">
+        <div class="card shadow h-100">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-plus-circle me-2" viewBox="0 0 16 16">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+              </svg>
+              Neue Aktivitaet
+            </h5>
+          </div>
+          <div class="card-body">
+            <app-activity-form (createActivity)="onCreateActivity($event)"></app-activity-form>
+          </div>
+        </div>
       </div>
-      <div class="card-body p-0">
-        <app-activity-table
-          [activities]="activities"
-          (deleteActivity)="onDeleteActivity($event)">
-        </app-activity-table>
+
+      <!-- Activity Table -->
+      <div class="col-lg-8 mb-4">
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoading" class="text-center my-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Laden...</span>
+          </div>
+          <p class="mt-3">Lade Aktivitaeten...</p>
+        </div>
+
+        <div *ngIf="!isLoading" class="card shadow h-100">
+          <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-list-ul me-2" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2m0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+              </svg>
+              Aktivitaeten
+            </h5>
+            <span class="badge bg-light text-dark">{{ activities.length }} gesamt</span>
+          </div>
+          <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
+            <app-activity-table
+              [activities]="activities"
+              (deleteActivity)="onDeleteActivity($event)">
+            </app-activity-table>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 
-  <footer class="mt-5 text-center text-muted">
+  <footer class="mt-4 text-center text-muted">
     <hr>
-    <p>&copy; 2025 Running Dashboard | Built with Angular and .NET 9</p>
+    <p class="small">&copy; 2025 Sportify Dashboard | Built with Angular und .NET 9</p>
   </footer>
 </div>
 
