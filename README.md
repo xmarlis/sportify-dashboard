@@ -1,71 +1,60 @@
-# Running Dashboard
+# Sportify Dashboard
 
-A full-stack web application for tracking and visualizing running and cycling activities.
+A full-stack web application for tracking and visualizing your sports activities with Strava integration.
 
-## Tech Stack
-
-### Backend
-- **.NET 9 Web API** (C#)
-- **Entity Framework Core** with **SQLite**
-- **Swagger** for API documentation and testing
-
-### Frontend
-- **Angular** (latest) with TypeScript
-- **Bootstrap 5** for responsive UI styling
-- **RxJS** for reactive programming
-
-### Database
-- **SQLite** for local development
+![Angular](https://img.shields.io/badge/Angular-20-red?logo=angular)
+![.NET](https://img.shields.io/badge/.NET-9-purple?logo=dotnet)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-blue?logo=bootstrap)
+![Leaflet](https://img.shields.io/badge/Leaflet-1.9-green?logo=leaflet)
 
 ## Features
 
-- ✅ **Strava Integration** - Connect your Strava account and automatically import activities
-- ✅ View all running/cycling activities in a responsive table
-- ✅ Create new activities with detailed metrics:
-  - Activity type (Run, Ride, Walk, Hike)
-  - Distance (in kilometers)
-  - Moving time (hours, minutes, seconds)
-  - Elevation gain
-  - Average heart rate (optional)
-  - Start date and time
-- ✅ Automatic pace calculation (min/km)
-- ✅ Delete activities
-- ✅ RESTful API with full CRUD operations
-- ✅ OAuth 2.0 authentication with Strava
-- ✅ Duplicate detection when importing from Strava
+### Strava Integration
+- Connect your Strava account with OAuth 2.0
+- Automatically import all your activities
+- Duplicate detection prevents re-importing existing activities
+- Syncs activity details including GPS routes
 
-## Project Structure
+### Interactive Activity Map
+- View all your activity routes on an interactive map
+- Color-coded routes by activity type (Run, Ride, Walk, Hike, etc.)
+- Filter routes by activity type
+- Click routes to see activity details (distance, time, date)
+- **Fullscreen mode** - click the map to expand for better viewing
 
-```
-running-dashboard/
-├── backend/                    # .NET 9 Web API
-│   ├── Controllers/
-│   │   └── ActivitiesController.cs
-│   ├── Data/
-│   │   └── AppDbContext.cs
-│   ├── Models/
-│   │   └── Activity.cs
-│   ├── Program.cs
-│   ├── appsettings.json
-│   └── RunningDashboard.csproj
-├── frontend/                   # Angular Application
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── components/
-│   │   │   │   ├── activity-form/
-│   │   │   │   └── activity-table/
-│   │   │   ├── models/
-│   │   │   │   └── activity.model.ts
-│   │   │   ├── services/
-│   │   │   │   └── activity.service.ts
-│   │   │   ├── app.ts
-│   │   │   ├── app.html
-│   │   │   └── app.config.ts
-│   │   └── index.html
-│   ├── angular.json
-│   └── package.json
-└── README.md
-```
+### Statistics Dashboard
+- Total distance, time, and elevation stats
+- Activity breakdown by type
+- Monthly activity trends
+- Average pace calculations
+
+### Activity Management
+- View all activities in a sortable table
+- Create new activities manually
+- Delete activities
+- Detailed metrics: distance, time, pace, elevation, heart rate
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Angular 20, TypeScript, Bootstrap 5 |
+| Maps | Leaflet with OpenStreetMap |
+| Backend | .NET 9 Web API (C#) |
+| Database | SQLite with Entity Framework Core |
+| Auth | OAuth 2.0 (Strava) |
+
+## Screenshots
+
+### Dashboard View
+- Statistics cards showing total distance, time, and activities
+- Interactive map with all your routes
+- Activity table with full details
+
+### Fullscreen Map
+- Click the map to open fullscreen view
+- Filter activities by type
+- Press Escape or click X to close
 
 ## Getting Started
 
@@ -73,209 +62,146 @@ running-dashboard/
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Node.js](https://nodejs.org/) (v18 or later)
-- [Angular CLI](https://angular.io/cli) (optional, but recommended)
+- [Angular CLI](https://angular.io/cli) (optional)
 
-### Running the Backend
+### Quick Start
 
-1. Navigate to the backend directory:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/xmarlis/sportify-dashboard.git
+   cd sportify-dashboard
+   ```
+
+2. **Start the Backend**
    ```bash
    cd backend
-   ```
-
-2. Restore dependencies:
-   ```bash
    dotnet restore
-   ```
-
-3. Run the API:
-   ```bash
    dotnet run
    ```
+   API runs on `http://localhost:5023`
 
-   The API will start on `https://localhost:5023` (or `http://localhost:5023`)
-
-4. Access Swagger UI for API documentation:
-   ```
-   http://localhost:5023/swagger
-   ```
-
-### Running the Frontend
-
-1. Navigate to the frontend directory:
+3. **Start the Frontend**
    ```bash
    cd frontend
-   ```
-
-2. Install dependencies:
-   ```bash
    npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   ng serve
-   ```
-   Or if you don't have Angular CLI globally installed:
-   ```bash
    npm start
    ```
+   App runs on `http://localhost:4200`
 
-4. Open your browser and navigate to:
+4. **Open in browser**
    ```
    http://localhost:4200
    ```
 
-## Strava Integration Setup
+## Strava Setup
 
-To enable Strava integration and automatically import your activities:
+To import activities from Strava:
 
-### 1. Create a Strava API Application
+1. **Create a Strava API Application**
+   - Go to [Strava API Settings](https://www.strava.com/settings/api)
+   - Create a new application
+   - Set callback domain to `localhost`
 
-1. Go to [Strava API Settings](https://www.strava.com/settings/api)
-2. Click "Create App" (or use an existing app)
-3. Fill in the application details:
-   - **Application Name**: Running Dashboard (or your choice)
-   - **Category**: Your choice
-   - **Website**: `http://localhost:4200`
-   - **Authorization Callback Domain**: `localhost`
-4. After creating, note your **Client ID** and **Client Secret**
+2. **Configure the Backend**
 
-### 2. Configure Backend
+   Edit `backend/appsettings.json`:
+   ```json
+   "Strava": {
+     "ClientId": "YOUR_CLIENT_ID",
+     "ClientSecret": "YOUR_CLIENT_SECRET",
+     "RedirectUri": "http://localhost:4200/strava/callback"
+   }
+   ```
 
-Open `backend/appsettings.json` and update the Strava configuration:
+3. **Connect in the App**
+   - Click "Connect to Strava" in the dashboard
+   - Authorize the application
+   - Click "Import Activities" to sync
 
-```json
-"Strava": {
-  "ClientId": "YOUR_STRAVA_CLIENT_ID",
-  "ClientSecret": "YOUR_STRAVA_CLIENT_SECRET",
-  "RedirectUri": "http://localhost:4200/strava/callback",
-  "AuthorizationEndpoint": "https://www.strava.com/oauth/authorize",
-  "TokenEndpoint": "https://www.strava.com/oauth/token",
-  "ApiBaseUrl": "https://www.strava.com/api/v3"
-}
+See [STRAVA_SETUP.md](STRAVA_SETUP.md) for detailed instructions.
+
+## Project Structure
+
 ```
-
-Replace `YOUR_STRAVA_CLIENT_ID` and `YOUR_STRAVA_CLIENT_SECRET` with your actual values from Step 1.
-
-### 3. Using Strava Integration
-
-1. Start both backend and frontend applications
-2. In the Running Dashboard UI, click **"Connect to Strava"** button
-3. You'll be redirected to Strava to authorize the application
-4. After authorization, you'll be redirected back to the dashboard
-5. Click **"Import Activities"** to sync your recent Strava activities
-6. Activities are automatically imported with duplicate detection
-
-**Note**: The free Strava API has rate limits. Be mindful when importing large numbers of activities.
+sportify-dashboard/
+├── backend/                    # .NET 9 Web API
+│   ├── Controllers/            # API endpoints
+│   ├── Models/                 # Data models
+│   ├── Services/               # Strava service
+│   └── Data/                   # Database context
+├── frontend/                   # Angular Application
+│   └── src/app/
+│       ├── components/
+│       │   ├── activity-map/       # Interactive map with routes
+│       │   ├── activity-table/     # Activity list table
+│       │   ├── activity-form/      # New activity form
+│       │   ├── statistics-dashboard/  # Stats cards
+│       │   └── strava-connect/     # Strava OAuth
+│       ├── models/             # TypeScript interfaces
+│       └── services/           # API & Strava services
+└── README.md
+```
 
 ## API Endpoints
 
-### Base URL
-```
-http://localhost:5023/api/activities
-```
-
-### Activity Endpoints
-
+### Activities
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/activities` | Get all activities |
-| GET | `/api/activities/{id}` | Get a specific activity by ID |
-| POST | `/api/activities` | Create a new activity |
-| PUT | `/api/activities/{id}` | Update an existing activity |
-| DELETE | `/api/activities/{id}` | Delete an activity |
+| GET | `/api/activities/{id}` | Get activity by ID |
+| POST | `/api/activities` | Create activity |
+| DELETE | `/api/activities/{id}` | Delete activity |
 
-### Strava Endpoints
-
+### Strava
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/strava/auth-url` | Get Strava OAuth authorization URL |
-| POST | `/api/strava/exchange-token` | Exchange authorization code for access token |
-| POST | `/api/strava/import-activities` | Import activities from Strava |
-| POST | `/api/strava/athlete` | Get athlete profile from Strava |
+| GET | `/api/strava/auth-url` | Get OAuth URL |
+| POST | `/api/strava/exchange-token` | Exchange auth code |
+| POST | `/api/strava/import-activities` | Import from Strava |
 
-### Example Activity JSON
+## Activity Types
 
-```json
-{
-  "type": "Run",
-  "distanceMeters": 5000,
-  "movingTimeSeconds": 1500,
-  "totalElevationGain": 50,
-  "startDate": "2025-11-10T08:30:00",
-  "averageHeartRate": 150
-}
-```
+The dashboard supports these activity types with color-coded routes:
 
-## Database
-
-The application uses SQLite for local data storage. The database file (`running-dashboard.db`) is automatically created in the `backend/` directory when you first run the API.
-
-### Activity Model
-
-```csharp
-public class Activity
-{
-    public int Id { get; set; }
-    public string? StravaId { get; set; }        // Strava activity ID (for imported activities)
-    public string Type { get; set; }             // "Run", "Ride", etc.
-    public double DistanceMeters { get; set; }
-    public int MovingTimeSeconds { get; set; }
-    public double? AverageHeartRate { get; set; }
-    public double TotalElevationGain { get; set; }
-    public DateTime StartDate { get; set; }
-}
-```
+| Type | Color |
+|------|-------|
+| Run | Orange |
+| Ride | Blue |
+| Walk | Green |
+| Hike | Light Green |
+| Swim | Cyan |
+| Virtual Ride | Purple |
+| Virtual Run | Pink |
 
 ## Development
 
-### Backend Configuration
+### Backend
+```bash
+cd backend
+dotnet watch run  # Hot reload enabled
+```
 
-- **Database connection**: Configured in `appsettings.json`
-- **CORS**: Configured to allow requests from `http://localhost:4200`
-- **Logging**: Configured for development with detailed Entity Framework logs
-- **Strava API**: Client ID and secret configured in `appsettings.json`
+### Frontend
+```bash
+cd frontend
+ng serve          # Hot reload enabled
+```
 
-### Frontend Configuration
-
-- **API URL**: Configured in `ActivityService` as `http://localhost:5023/api/activities`
-- **Bootstrap**: Configured in `angular.json` styles array
-- **HttpClient**: Configured as a provider in `app.config.ts`
-- **Strava Token**: Stored in browser localStorage for persistent connection
-
-## Future Enhancements
-- 📊 Advanced statistics and charts (weekly/monthly summaries)
-- 🗺️ Map visualization of routes
-- 🏃 Pace zones and heart rate zones analysis
-- 📱 Mobile-responsive enhancements
-- 👤 User authentication and multi-user support
-- 🎯 Goal tracking and progress monitoring
+### API Documentation
+Swagger UI available at `http://localhost:5023/swagger`
 
 ## Contributing
 
-1. Create a feature branch from `main`
-2. Make your changes with clear, conventional commit messages
-3. Test thoroughly
-4. Submit a pull request
-
-### Commit Message Convention
-
-```
-feat(component): add new feature
-fix(component): fix bug
-chore: update dependencies
-docs: update README
-style(component): improve styling
-```
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is open source and available under the MIT License.
-
-## Authors
-
-Built with ❤️ using Angular and .NET 9
+This project is open source under the MIT License.
 
 ---
 
-**Note**: This is a local development application. For production deployment, additional security, authentication, and deployment configurations would be required.
+Built with Angular and .NET 9
