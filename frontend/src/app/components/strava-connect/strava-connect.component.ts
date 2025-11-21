@@ -17,7 +17,9 @@ export class StravaConnectComponent implements OnInit {
 
   isConnected = false;
   isImporting = false;
+  isSyncing = false;
   importMessage = '';
+  syncMessage = '';
   athleteName = '';
   token: StravaToken | null = null;
 
@@ -58,34 +60,109 @@ export class StravaConnectComponent implements OnInit {
   /**
    * Import activities from Strava
    */
-  importActivities(): void {
+  async importActivities(): Promise<void> {
     this.isImporting = true;
     this.importMessage = '';
 
-    this.stravaService.importActivities().subscribe({
-      next: (result) => {
-        this.importMessage = result.message;
+    try {
+      // Get a valid access token (will refresh if expired)
+      const accessToken = await this.stravaService.getValidAccessToken();
+      
+      if (!accessToken) {
+        this.importMessage = 'Authentication expired. Please reconnect to Strava.';
         this.isImporting = false;
-
-        if (result.imported > 0) {
-          // Notify parent component to reload activities
-          this.activitiesImported.emit();
-        }
-
-        // Clear message after 5 seconds
-        setTimeout(() => {
-          this.importMessage = '';
-        }, 5000);
-      },
-      error: (error) => {
-        console.error('Error importing activities:', error);
-        this.importMessage = 'Failed to import activities. Please try again.';
-        this.isImporting = false;
-
-        setTimeout(() => {
-          this.importMessage = '';
-        }, 5000);
+        this.stravaService.disconnect();
+        return;
       }
-    });
+
+      this.stravaService.importActivities(accessToken).subscribe({
+        next: (result) => {
+          this.importMessage = result.message;
+          this.isImporting = false;
+
+          if (result.imported > 0) {
+            // Notify parent component to reload activities
+            this.activitiesImported.emit();
+          }
+
+          // Clear message after 5 seconds
+          setTimeout(() => {
+            this.importMessage = '';
+          }, 5000);
+        },
+        error: (error) => {
+          console.error('Error importing activities:', error);
+          this.importMessage = 'Failed to import activities. Please try again.';
+          this.isImporting = false;
+
+          setTimeout(() => {
+            this.importMessage = '';
+          }, 5000);
+        }
+      });
+    } catch (error) {
+      console.error('Error getting valid token:', error);
+      this.importMessage = 'Authentication error. Please reconnect to Strava.';
+      this.isImporting = false;
+    }
+  }
+
+  /**
+   * Sync new activities from Strava
+   */
+  async syncNewActivities(): Promise<void> {
+    this.isSyncing = true;
+    this.syncMessage = '';
+
+    try {
+      // Get a valid access token (will refresh if expired)
+      const accessToken = await this.stravaService.getValidAccessToken();
+      
+      if (!accessToken) {
+        this.syncMessage = 'Authentication expired. Please reconnect to Strava.';
+        this.isSyncing = false;
+        this.stravaService.disconnect();
+        return;
+      }
+
+      this.stravaService.syncNewActivities(accessToken).subscribe({
+        next: (result) => {
+          console.log('Sync result:', result);
+          
+          if (result.imported === 0 && result.skipped === 0) {
+            this.syncMessage = result.message || 'No new activities found';
+          } else if (result.imported === 0 && result.skipped > 0) {
+            this.syncMessage = `Found ${result.skipped} activities, but all were already imported`;
+          } else {
+            this.syncMessage = result.message || `Synced ${result.imported} new activities`;
+          }
+          
+          this.isSyncing = false;
+
+          if (result.imported > 0) {
+            // Notify parent component to reload activities
+            this.activitiesImported.emit();
+          }
+
+          // Clear message after 5 seconds
+          setTimeout(() => {
+            this.syncMessage = '';
+          }, 5000);
+        },
+        error: (error) => {
+          console.error('Error syncing activities:', error);
+          this.syncMessage = 'Failed to sync activities. Please try again.';
+          this.isSyncing = false;
+
+          setTimeout(() => {
+            this.syncMessage = '';
+          }, 5000);
+        }
+      });
+    } catch (error) {
+      console.error('Error getting valid token:', error);
+      this.syncMessage = 'Authentication error. Please reconnect to Strava.';
+      this.isSyncing = false;
+    }
   }
 }
