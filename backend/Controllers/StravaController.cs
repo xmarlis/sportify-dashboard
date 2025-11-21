@@ -52,11 +52,30 @@ public class StravaController : ControllerBase
     {
         try
         {
-            var tokenResponse = await _stravaService.ExchangeTokenAsync(request.Code);
+            var (tokenResponse, errorResponse) = await _stravaService.ExchangeTokenAsync(request.Code);
+
+            if (errorResponse != null)
+            {
+                _logger.LogWarning("Strava API error: {ErrorCode} - {Message}",
+                    errorResponse.ErrorCode, errorResponse.Message);
+
+                return StatusCode(errorResponse.StatusCode, new
+                {
+                    error = true,
+                    errorCode = errorResponse.ErrorCode,
+                    message = errorResponse.Message,
+                    detailedMessage = errorResponse.DetailedMessage
+                });
+            }
 
             if (tokenResponse == null)
             {
-                return BadRequest("Failed to exchange token with Strava");
+                return BadRequest(new
+                {
+                    error = true,
+                    errorCode = "TOKEN_EXCHANGE_FAILED",
+                    message = "Fehler beim Austausch des Tokens mit Strava"
+                });
             }
 
             _logger.LogInformation("Returning token to frontend - AccessToken length: {Length}",
@@ -67,7 +86,12 @@ public class StravaController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error exchanging Strava token");
-            return StatusCode(500, "An error occurred while exchanging token");
+            return StatusCode(500, new
+            {
+                error = true,
+                errorCode = "INTERNAL_ERROR",
+                message = "Ein unerwarteter Fehler ist aufgetreten"
+            });
         }
     }
 
